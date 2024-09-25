@@ -1,24 +1,38 @@
 import memesData from "./memesData";
 import { useState } from "react";
 
-interface Meme {
-  url: string;
-  // add other properties if needed
-}
-
-interface MemeData {
-  data: {
-    memes: Meme[];
-  };
-}
-
 export default function Meme() {
-  const [memeImage, setMemeImage] = useState<string>("");
+  /*
+   * Challenge: Update our state to save the meme-related
+   * data as an object called `meme`. It should have the
+   * following 3 properties:
+   * topText, bottomText, randomImage.
+   *
+   * The 2 text states can default to empty strings for now,
+   * amd randomImage should default to "http://i.imgflip.com/1bij.jpg"
+   *
+   * Next, create a new state variable called `allMemeImages`
+   * which will default to `memesData`, which we imported above
+   *
+   * Lastly, update the `getMemeImage` function and the markup
+   * to reflect our newly reformed state object and array in the
+   * correct way.
+   */
+
+  const [meme, setMeme] = useState({
+    topText: "",
+    bottomText: "",
+    randomImage: "https://i.imgflip.com/1g8my4.jpg",
+  });
+
+  const [allMemeImages, setAllMemeImages] = useState(memesData.data.memes);
 
   function getMemeImage() {
-    const memesArray: Meme[] = (memesData as MemeData).data.memes;
-    const randomNumber = Math.floor(Math.random() * memesArray.length);
-    setMemeImage(memesArray[randomNumber].url);
+    const randomNumber = Math.floor(Math.random() * allMemeImages.length);
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      randomImage: allMemeImages[randomNumber].url,
+    }));
   }
 
   return (
@@ -30,7 +44,9 @@ export default function Meme() {
           Get a new meme image 🖼
         </button>
       </div>
-      {memeImage && <img src={memeImage} alt="Meme" className="meme--image" />}
+      {meme && (
+        <img src={meme.randomImage} alt="Meme" className="meme--image" />
+      )}
     </main>
   );
 }
