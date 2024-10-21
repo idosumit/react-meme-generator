@@ -1,13 +1,16 @@
-import { useState } from "react";
-import memesData from "./memesData";
+import { useState, useEffect } from "react";
 
 export default function Meme() {
   /**
    * Challenge:
-   * 1. Set up the text inputs to save to
-   *    the `topText` and `bottomText` state variables.
-   * 2. Replace the hard-coded text on the image with
-   *    the text being saved to state.
+   * As soon as the Meme component loads the first time,
+   * make an API call to "https://api.imgflip.com/get_memes".
+   *
+   * When the data comes in, save just the memes array part
+   * of that data to the `allMemes` state
+   *
+   * Think about if there are any dependencies that, if they
+   * changed, you'd want to cause to re-run this function.
    */
 
   const [meme, setMeme] = useState({
@@ -15,16 +18,31 @@ export default function Meme() {
     bottomText: "",
     randomImage: "http://i.imgflip.com/1bij.jpg",
   });
-  const [allMemeImages, setAllMemeImages] = useState(memesData);
+  const [allMemes, setAllMemes] = useState([]);
 
-  function getMemeImage(event) {
-    const { name, value } = event.target;
-    // const memesArray = allMemeImages.data.memes;
-    // const randomNumber = Math.floor(Math.random() * memesArray.length);
-    const url = meme.randomImage;
+  const apiLink = "https://api.imgflip.com/get_memes";
+
+  useEffect(() => {
+    fetch(apiLink)
+      .then((res) => res.json())
+      .then((res) => {
+        setAllMemes(res.data.memes);
+      });
+  }, []);
+
+  function getNewMemeImageUrl() {
+    const randomNumber = Math.floor(Math.random() * allMemes.length);
+    const url = allMemes[randomNumber].url;
     setMeme((prevMeme) => ({
       ...prevMeme,
       randomImage: url,
+    }));
+  }
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setMeme((prevMeme) => ({
+      ...prevMeme,
       [name]: value,
     }));
   }
@@ -38,7 +56,7 @@ export default function Meme() {
           className="form--input"
           name="topText"
           value={meme.topText}
-          onChange={getMemeImage}
+          onChange={handleChange}
         />
         <input
           type="text"
@@ -46,9 +64,9 @@ export default function Meme() {
           className="form--input"
           name="bottomText"
           value={meme.bottomText}
-          onChange={getMemeImage}
+          onChange={handleChange}
         />
-        <button className="form--button" onClick={getMemeImage}>
+        <button className="form--button" onClick={getNewMemeImageUrl}>
           Get a new meme image 🖼
         </button>
       </div>
